@@ -5,10 +5,12 @@ const validateNewData = require("../utils/validateNewData.js");
 // Use the existing order data
 const orders = require(path.resolve("src/data/orders-data"));
 
+// Variable of statuses that are allowed in updates
 const acceptedStatuses = ['pending', 'preparing', 'out-for-delivery', 'delivered'];
 
 // Validation
-const checkOrderExists = (request, response, next) => {
+// check if order ID is valid
+function checkOrderExists(request, response, next) {
   const orderId = request.params.orderId;
   const order = orders.find(order => order.id == orderId);
   if (order) {
@@ -20,7 +22,8 @@ const checkOrderExists = (request, response, next) => {
     message: 'Dish not found: ' + orderId
   })
 }
-const checkOrderValidity = (request, response, next) => {
+// check if data passed by request is valid
+function checkOrderValidity(request, response, next) {
   const expectedFields = ['deliverTo', 'mobileNumber', 'dishes'];
   const { data, error } = validateNewData(request, next, expectedFields);
   if(data) {
@@ -46,6 +49,7 @@ const checkOrderValidity = (request, response, next) => {
     }
     response.locals.data = data;
     next();
+  // handle errors
   } else if (error) {
     return next(error);
   } else {
@@ -57,15 +61,15 @@ const checkOrderValidity = (request, response, next) => {
 }
 
 // Handlers
-const list = (request, response, next) => {
+function list(request, response, next) {
   response.status(200).json({ data: orders });
 }
 
-const read = (request, response, next) => {
+function read(request, response, next) {
   response.status(200).json({ data: response.locals.order})
 }
 
-const create = (request, response, next) => {
+function create(request, response, next) {
   const data = response.locals.data;
   data.id = nextId();
   orders.push(data);
@@ -73,7 +77,7 @@ const create = (request, response, next) => {
   response.status(201).json({ data })
 }
 
-const update = (request, response, next) => {
+function update(request, response, next) {
   // original
   const order = response.locals.order;
   if (order.status === 'delivered') {
@@ -103,7 +107,7 @@ const update = (request, response, next) => {
   response.status(200).json({ data: order })
 }
 
-const destroy = (request, response, next) => {
+function destroy(request, response, next) {
   const order = response.locals.order;
   if (order.status !== 'pending') {
     return next({

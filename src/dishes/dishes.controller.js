@@ -6,7 +6,8 @@ const validateNewData = require("../utils/validateNewData.js");
 const dishes = require(path.resolve("src/data/dishes-data"));
 
 // Validation
-const checkDishExists = (request, response, next) => {
+// check if dish ID is valid
+function checkDishExists(request, response, next) {
   const dishId = request.params.dishId;
   const dish = dishes.find(dish => dish.id == dishId);
   if (dish) {
@@ -18,7 +19,8 @@ const checkDishExists = (request, response, next) => {
     message: 'Dish not found: ' + dishId
   })
 }
-const checkNewDishValidity = (request, response, next) => {
+// check if data passed by request is valid
+function checkNewDishValidity(request, response, next) {
   const expectedFields = ['name', 'description', 'price', 'image_url'];
   const { data, error } = validateNewData(request, next, expectedFields);
   if(data) {
@@ -41,22 +43,22 @@ const checkNewDishValidity = (request, response, next) => {
 }
 
 // Handlers
-const list = (request, response, next) => {
+function list(request, response, next) {
   response.status(200).json({ data: dishes });
 }
 
-const read = (request, response, next) => {
+function read(request, response, next) {
   response.status(200).json({ data: response.locals.dish });
 }
 
-const create = (request, response, next) => {
+function create(request, response, next) {
   const newDish = response.locals.newDish;
   newDish.id = nextId();
   dishes.push(newDish);
   response.status(201).json({ data: newDish });
 }
 
-const update = (request, response, next) => {
+function update(request, response, next) {
   const dish = response.locals.dish;
   const { id, name, description, price, image_url } = response.locals.newDish;
   if (id && id !== dish.id) return next({

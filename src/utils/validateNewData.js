@@ -9,7 +9,7 @@
  * @param {*} expectedFields the non-empty keys the request.body should contain
  * @returns object with {request.body} if it is valid, or {error} if not
  */
-const validateNewData = (request, next, expectedFields = []) => {
+function validateNewData(request, next, expectedFields = []) {
   const { data } = request.body;
   if(!data) {
     return { error: {
